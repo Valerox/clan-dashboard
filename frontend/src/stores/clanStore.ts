@@ -1,43 +1,54 @@
-import { defineStore } from 'pinia';
-import axios from 'axios';
+import { defineStore } from "pinia";
+import axios from "axios";
+import { ref } from "vue";
 
-export const useClanStore = defineStore('clan', {
-  state: () => ({
-    clanData: null, // Hier werden die Clan-Daten gespeichert
-    error: null, // Für Fehlermeldungen
-  }),
+export const useClanStore = defineStore("clan", () => {
+  const clanData = ref({});
+  const warLog = ref([]);
+  const _interval = ref<number | null>(null);
+  const clanTag = "#2G8UCRVPP";
 
-  actions: {
-    // Aktion zum Abrufen der Clan-Daten vom Backend
-    async fetchClanData() {
-      try {
-        const response = await axios.get('/api/clan/#CLANTAG'); // API-Endpunkt ersetzen
-        this.clanData = response.data;
-        this.error = null;
-      } catch (err) {
-        console.error('Fehler beim Abrufen der Clan-Daten:', err);
-        this.error = 'Fehler beim Laden der Clan-Daten.';
-      }
-    },
+  const api = axios.create({
+    baseURL: "http://localhost:5000/",
+  });
 
-    // Intervall zur automatischen Aktualisierung starten
-    startAutoUpdate(interval = 60000) {
-      this.fetchClanData(); // Daten sofort laden
-      if (this._interval) clearInterval(this._interval); // Vorheriges Intervall löschen
-      this._interval = setInterval(this.fetchClanData, interval); // Neues Intervall starten
-    },
+  function fetchClanData() {
+    api
+      .get(`/clan/${encodeURIComponent(clanTag)}`)
+      .then((response) => {
+        console.log(response.data);
+        clanData.value = response.data;
+      })
+      .catch((err) => {
+        console.error("Fehler beim Abrufen der Clan-Daten:", err);
+      });
+  }
+  function startAutoUpdate(interval = 60000) {
+    fetchClanData(); // Daten sofort laden
+    if (_interval.value) clearInterval(_interval.value); // Vorheriges Intervall löschen
+    _interval.value = setInterval(fetchClanData, interval); // Neues Intervall starten
+  }
 
-    // Intervall stoppen
-    stopAutoUpdate() {
-      if (this._interval) {
-        clearInterval(this._interval);
-        this._interval = null;
-      }
-    },
-  },
-
-  // Speicher aufräumen, wenn der Store nicht mehr gebraucht wird
-  onDestroy() {
-    this.stopAutoUpdate();
-  },
+  function stopAutoUpdate() {
+    if (_interval.value) {
+      clearInterval(_interval.value);
+      _interval.value = null;
+    }
+  }
+  startAutoUpdate();
+  api
+    .get(`/clan/${encodeURIComponent(clanTag)}/lastwars`)
+    .then((response) => {
+      warLog.value = response.data;
+      console.log(warLog.value);
+    })
+    .catch((err) => {
+      console.error("Fehler beim Abrufen der Clan-Daten:", err);
+    });
+  return {
+    clanData,
+    warLog,
+    startAutoUpdate,
+    stopAutoUpdate,
+  };
 });

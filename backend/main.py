@@ -12,10 +12,27 @@ API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlY
 
 @app.route('/clan/<clan_tag>', methods=['GET'])
 def get_clan_details(clan_tag):
-    print('get clan info')
     # Bereinige das Clan-Tag
     clan_tag = clan_tag.replace("#", "%23")
     url = f"https://api.clashofclans.com/v1/clans/{clan_tag}"
+
+    headers = {
+        "Authorization": f"Bearer {API_KEY}"
+    }
+
+    try:
+        # Anfrage an die Clash of Clans API
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Fehler auslösen, falls Statuscode nicht 2xx
+        return jsonify(response.json())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/clan/<clan_tag>/lastwars', methods=['GET'])
+def get_clan_warlogs(clan_tag):
+    # Bereinige das Clan-Tag
+    clan_tag = clan_tag.replace("#", "%23")
+    url = f"https://api.clashofclans.com/v1/clans/{clan_tag}/warlog"
 
     headers = {
         "Authorization": f"Bearer {API_KEY}"

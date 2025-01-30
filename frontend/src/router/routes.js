@@ -1,19 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../components/Home.vue';
 import ClanDetails from '../components/ClanDetails.vue';
 import Members from '../components/Members.vue';
 import NotFound from '../components/NotFound.vue';
+import ClanWarHistory from '../components/ClanWarHistory.vue';
+import CurrentWar from '../components/CurrentWar.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: ClanDetails,
   },
   {
-    path: '/clan',
-    name: 'ClanDetails',
-    component: ClanDetails,
+    path: '/currentWar',
+    name: 'CurrentWar',
+    component: CurrentWar,
+  },
+  {
+    path: '/history',
+    name: 'ClanWarHistory',
+    component: ClanWarHistory,
   },
   {
     path: '/members',
