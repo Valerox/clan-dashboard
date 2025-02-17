@@ -1,58 +1,42 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useClanStore } from "../stores/clanStore";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 
-const warStore = useWarStore();
-const clanTag = ref("DEINCLANTAG");
+const clanStore = useClanStore();
+const currentwar = computed(() => clanStore.currentWar);
 
-onMounted(() => {
-  warStore.fetchCurrentWar(clanTag.value);
-});
+const myClan = computed(() => clanStore.currentWar?.clan);
+const enemyClan = computed(() => clanStore.currentWar?.opponent);
 
-const myClan = computed(() => warStore.warData?.clan);
-const enemyClan = computed(() => warStore.warData?.opponent);
+function getStatusClass(status) {
+  switch (status) {
+    case "Angegriffen":
+      return "bg-green-100 text-green-700";
+    case "Verteidigung":
+      return "bg-yellow-100 text-yellow-700";
+    case "Nicht angegriffen":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+}
 </script>
 
 <template>
-  <div class="p-4">
-    <h1 class="text-2xl font-bold mb-4">⚔️ Clankrieg Übersicht</h1>
-
-    <p v-if="warStore.isLoading">⏳ Lade Daten...</p>
-    <p v-else-if="warStore.isError" class="text-red-500">❌ Fehler beim Laden der Kriegsdaten!</p>
-
-    <div v-else class="bg-gray-100 p-4 rounded-lg shadow-md">
-      <h2 class="text-xl font-semibold">🆚 {{ myClan?.name }} vs. {{ enemyClan?.name }}</h2>
-      <p>Status: <strong>{{ warStore.warData?.state }}</strong></p>
-      <p>Verbleibende Zeit: <strong>{{ new Date(warStore.warData?.endTime).toLocaleString("de-DE") }}</strong></p>
-
-      <div class="grid grid-cols-2 gap-4 mt-4">
-        <div class="bg-white p-4 rounded-lg shadow">
-          <h3 class="text-lg font-semibold">🏆 Unser Clan</h3>
-          <p>Sterne: <strong>{{ myClan?.stars }}</strong></p>
-          <p>Zerstörung: <strong>{{ myClan?.destructionPercentage }}%</strong></p>
-          <p>Verbleibende Angriffe: <strong>{{ myClan?.attacks }}</strong></p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow">
-          <h3 class="text-lg font-semibold">🔥 Gegner</h3>
-          <p>Sterne: <strong>{{ enemyClan?.stars }}</strong></p>
-          <p>Zerstörung: <strong>{{ enemyClan?.destructionPercentage }}%</strong></p>
-          <p>Verbleibende Angriffe: <strong>{{ enemyClan?.attacks }}</strong></p>
-        </div>
-      </div>
-
-      <h2 class="text-xl font-semibold mt-6">📜 Angriffsübersicht</h2>
-      <DataTable :value="myClan?.members" class="p-datatable-sm mt-4">
-        <Column field="name" header="Spieler"></Column>
-        <Column field="attacks" header="Angriffe benutzt">
-          <template #body="slotProps">
-            {{ slotProps.data.attacks?.length || 0 }}/2
-          </template>
-        </Column>
-        <Column field="bestOpponentAttack" header="Beste Attacke">
-          <template #body="slotProps">
-            ⭐ {{ slotProps.data.bestOpponentAttack?.stars || 0 }} | {{ slotProps.data.bestOpponentAttack?.destructionPercentage || 0 }}%
-          </template>
-        </Column>
-      </DataTable>
-    </div>
-  </div>
+  <DataTable :value="myClan?.members" class="p-datatable-sm mt-4">
+    <Column field="name" header="Spieler"></Column>
+    <Column field="attacks" header="Angriffe benutzt">
+      <template #body="slotProps">
+        {{ slotProps.data.attacks?.length || 0 }}/2
+      </template>
+    </Column>
+    <Column field="bestOpponentAttack" header="Beste Attacke">
+      <template #body="slotProps">
+        ⭐ {{ slotProps.data.bestOpponentAttack?.stars || 0 }} | {{
+          slotProps.data.bestOpponentAttack?.destructionPercentage || 0 }}%
+      </template>
+    </Column>
+  </DataTable>
 </template>

@@ -25,7 +25,6 @@ onMounted(() => {
         <div class="pt-4 font-bold">{{ clanStore.clanData?.name }}</div>
       </div>
       <router-link to="/" class="hover:text-primary-dark transition">Home</router-link>
-      <router-link to="/currentWar" class="hover:underline">Clankrieg</router-link>
       <router-link to="/history" class="hover:underline">Clankrieg-Verlauf</router-link>
       <router-link to="/members" class="hover:text-primary-dark transition">Mitglieder</router-link>
       <!-- <button @click="toggleDarkMode" class="ml-4 p-2 rounded-lg bg-primary-light dark:bg-primary-dark text-text">

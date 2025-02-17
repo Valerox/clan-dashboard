@@ -45,6 +45,24 @@ def get_clan_warlogs(clan_tag):
         return jsonify(response.json())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/clan/<clan_tag>/currentwar', methods=['GET'])
+def get_current_war(clan_tag):
+    # Bereinige das Clan-Tag
+    clan_tag = clan_tag.replace("#", "%23")
+    url = f"https://api.clashofclans.com/v1/clans/{clan_tag}/currentwar"
+
+    headers = {
+        "Authorization": f"Bearer {API_KEY}"
+    }
+
+    try:
+        # Anfrage an die Clash of Clans API
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Fehler auslösen, falls Statuscode nicht 2xx
+        return jsonify(response.json())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/')
 def hello_world():
